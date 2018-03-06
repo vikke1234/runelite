@@ -576,6 +576,12 @@ public enum ClueScroll
 	CLUE537("The cipher reveals who to speak to next: ZSBKDO ZODO", "Pirate Pete", "Dock northeast of the Ectofunctus", CIPHER),
 	CLUE538("The cipher reveals who to speak to next: GBJSZ RVFFO", "Fairy Queen", "Fairy Resistance Hideout", CIPHER),
 	CLUE539("The cipher reveals who to speak to next: QSPGFTTPS HSBDLMFCPOF", "Professor Gracklebone", "Arceuus House Library, ground floor", "9", CIPHER);
+	
+	CLUE540("This anagram reveals who to speak to next: Arr! so i am a crust, and?", "Ramara du Croissant", "In the forge in Piscatoris Fishing Colony, requiring the quest Swan Song .", "Puzzle box", ANAGRAM),
+	CLUE541("This anagram reveals who to speak to next: Blue grim guided", "Lumbridge Guide", "Just outside of Lumbridge Castle.", "Puzzle box", ANAGRAM),
+	CLUE542("This anagram reveals who to speak to next: Dim tharn", "Mandrith", "Outside the Wilderness Resource Area.", "28 or Puzzle box", ANAGRAM),
+	CLUE543("This anagram reveals who to speak to next: Dr hitman", "Mandrith", "Outside the Wilderness Resource Area.", "28, Puzzle box, or Light box.", ANAGRAM),
+	CLUE544("This anagram reveals who to speak to next: He do pose. it is cultrrl, mk?", "Riki the sculptor's model", "East side of Keldagrim, south of the kebab seller.", "Puzzle box", ANAGRAM),
 
 	private static final Map<String, ClueScroll> clues = new HashMap<>();
 
