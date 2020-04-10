@@ -28,7 +28,7 @@ package net.runelite.client.plugins.grounditems;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.EvictingQueue;
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.Provides;
 import java.awt.Color;
 import java.awt.Rectangle;
@@ -48,7 +48,6 @@ import javax.inject.Inject;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.Value;
 import net.runelite.api.Client;
 import net.runelite.api.Constants;
 import net.runelite.api.GameState;
@@ -101,13 +100,6 @@ import net.runelite.client.util.Text;
 )
 public class GroundItemsPlugin extends Plugin
 {
-	@Value
-	static class PriceHighlight
-	{
-		private final int price;
-		private final Color color;
-	}
-
 	// ItemID for coins
 	private static final int COINS = ItemID.COINS_995;
 	// Ground item menu options
@@ -176,7 +168,7 @@ public class GroundItemsPlugin extends Plugin
 
 	@Getter
 	private final Map<GroundItem.GroundItemKey, GroundItem> collectedGroundItems = new LinkedHashMap<>();
-	private List<PriceHighlight> priceChecks = ImmutableList.of();
+	private Map<Integer, Color> priceChecks = ImmutableMap.of();
 	private LoadingCache<NamedQuantity, Boolean> highlightedItems;
 	private LoadingCache<NamedQuantity, Boolean> hiddenItems;
 	private final Queue<Integer> droppedItemQueue = EvictingQueue.create(16); // recently dropped items
@@ -442,30 +434,30 @@ public class GroundItemsPlugin extends Plugin
 			.build(new WildcardMatchLoader(hiddenItemList));
 
 		// Cache colors
-		ImmutableList.Builder<PriceHighlight> priceCheckBuilder = ImmutableList.builder();
+		ImmutableMap.Builder<Integer, Color> priceCheckBuilder = ImmutableMap.builder();
 		if (config.getHighlightOverValue() > 0)
 		{
-			priceCheckBuilder.add(new PriceHighlight(config.getHighlightOverValue(), config.highlightedColor()));
+			priceCheckBuilder.put(config.getHighlightOverValue(), config.highlightedColor());
 		}
 
 		if (config.insaneValuePrice() > 0)
 		{
-			priceCheckBuilder.add(new PriceHighlight(config.insaneValuePrice(), config.insaneValueColor()));
+			priceCheckBuilder.put(config.insaneValuePrice(), config.insaneValueColor());
 		}
 
 		if (config.highValuePrice() > 0)
 		{
-			priceCheckBuilder.add(new PriceHighlight(config.highValuePrice(), config.highValueColor()));
+			priceCheckBuilder.put(config.highValuePrice(), config.highValueColor());
 		}
 
 		if (config.mediumValuePrice() > 0)
 		{
-			priceCheckBuilder.add(new PriceHighlight(config.mediumValuePrice(), config.mediumValueColor()));
+			priceCheckBuilder.put(config.mediumValuePrice(), config.mediumValueColor());
 		}
 
 		if (config.lowValuePrice() > 0)
 		{
-			priceCheckBuilder.add(new PriceHighlight(config.lowValuePrice(), config.lowValueColor()));
+			priceCheckBuilder.put(config.lowValuePrice(), config.lowValueColor());
 		}
 
 		priceChecks = priceCheckBuilder.build();
@@ -597,26 +589,26 @@ public class GroundItemsPlugin extends Plugin
 		}
 
 		ValueCalculationMode mode = config.valueCalculationMode();
-		for (PriceHighlight highlight : priceChecks)
+		for (Map.Entry<Integer, Color> entry : priceChecks.entrySet())
 		{
 			switch (mode)
 			{
 				case GE:
-					if (gePrice > highlight.getPrice())
+					if (gePrice > entry.getKey())
 					{
-						return highlight.getColor();
+						return entry.getValue();
 					}
 					break;
 				case HA:
-					if (haPrice > highlight.getPrice())
+					if (haPrice > entry.getKey())
 					{
-						return highlight.getColor();
+						return entry.getValue();
 					}
 					break;
 				default: // case HIGHEST
-					if (gePrice > highlight.getPrice() || haPrice > highlight.getPrice())
+					if (gePrice > entry.getKey() || haPrice > entry.getKey())
 					{
-						return highlight.getColor();
+						return entry.getValue();
 					}
 					break;
 			}
