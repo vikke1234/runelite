@@ -24,6 +24,7 @@
  */
 package net.runelite.client.plugins.party;
 
+import com.google.common.collect.Queues;
 import com.google.inject.Inject;
 import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
@@ -32,8 +33,7 @@ import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -41,6 +41,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import net.runelite.client.callback.ClientThread;
+import net.runelite.client.eventbus.Subscribe;
+import net.runelite.client.events.PartyChanged;
 import net.runelite.client.party.PartyService;
 import net.runelite.client.plugins.party.data.PartyData;
 import net.runelite.client.ui.ColorScheme;
@@ -64,7 +66,7 @@ class PartyPanel extends PluginPanel
 	private final JButton rejoinPartyButton = new JButton();
 	private final JButton copyPartyIdButton = new JButton();
 
-	private final PluginErrorPanel noPartyPanel = new PluginErrorPanel();
+	private final PluginErrorPanel noPartyPanel;
 	private final PluginErrorPanel partyEmptyPanel = new PluginErrorPanel();
 	private final JComponent memberBoxPanel = new DragAndDropReorderPane();
 
@@ -74,6 +76,7 @@ class PartyPanel extends PluginPanel
 		this.plugin = plugin;
 		this.party = party;
 		this.config = config;
+		this.noPartyPanel = new PluginErrorPanel(party);
 
 		setBorder(new EmptyBorder(10, 10, 10, 10));
 		setBackground(ColorScheme.DARK_GRAY_COLOR);
@@ -198,8 +201,7 @@ class PartyPanel extends PluginPanel
 				clipboard.setContents(new StringSelection(party.getPartyPassphrase()), null);
 			}
 		});
-
-		noPartyPanel.setContent("Not in a party", "Create a party to begin.");
+		noPartyPanel.setContent("Not in a party", "Create a party to begin.", null);
 
 		updateParty();
 	}
@@ -216,12 +218,13 @@ class PartyPanel extends PluginPanel
 
 		if (!party.isInParty())
 		{
+			noPartyPanel.setContent("Not in a party", "Create a party to begin.", plugin.getPreviousParties());
 			add(noPartyPanel);
 		}
 		else if (plugin.getPartyDataMap().size() <= 1)
 		{
 			partyEmptyPanel.setContent("Party created", "You can now invite friends!<br/>" +
-					"Your party passphrase is: " + party.getPartyPassphrase() + ".");
+					"Your party passphrase is: " + party.getPartyPassphrase() + ".", null);
 			add(partyEmptyPanel);
 		}
 	}

@@ -180,7 +180,7 @@ public interface PartyConfig extends Config
 		keyName = "previousPartyId",
 		name = "",
 		description = "",
-		hidden = true
+		hidden = false
 	)
 	default String previousPartyId()
 	{

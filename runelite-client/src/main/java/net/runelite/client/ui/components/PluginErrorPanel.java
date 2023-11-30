@@ -27,10 +27,17 @@ package net.runelite.client.ui.components;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.SwingConstants;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Queue;
+import javax.inject.Inject;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+
+import net.runelite.client.party.PartyService;
 import net.runelite.client.ui.FontManager;
 import net.runelite.client.ui.components.shadowlabel.JShadowedLabel;
 
@@ -42,6 +49,15 @@ public class PluginErrorPanel extends JPanel
 {
 	private final JLabel noResultsTitle = new JShadowedLabel();
 	private final JLabel noResultsDescription = new JShadowedLabel();
+
+	private final JPanel prevParties = new JPanel();
+
+	private PartyService partyService;
+
+	public PluginErrorPanel(PartyService partyService) {
+		this();
+		this.partyService = partyService;
+	}
 
 	public PluginErrorPanel()
 	{
@@ -58,7 +74,10 @@ public class PluginErrorPanel extends JPanel
 
 		add(noResultsTitle, BorderLayout.NORTH);
 		add(noResultsDescription, BorderLayout.CENTER);
+		prevParties.setLayout(new BoxLayout(prevParties, BoxLayout.PAGE_AXIS));
+		prevParties.setBorder(new EmptyBorder(20, 10, 10, 10));
 
+		add(prevParties, BorderLayout.SOUTH);
 		setVisible(false);
 	}
 
@@ -71,5 +90,40 @@ public class PluginErrorPanel extends JPanel
 		noResultsTitle.setText(title);
 		noResultsDescription.setText("<html><body style = 'text-align:center'>" + description + "</body></html>");
 		setVisible(true);
+	}
+
+	public void setContent(String title, String description, Queue<String> parties)
+	{
+		setContent(title, description);
+		prevParties.removeAll();
+		if (parties != null) {
+			JLabel prevTitle = new JLabel("<html><body style = 'text-align:center'>Previous parties</body></html>");
+			prevTitle.setForeground(Color.WHITE);
+			prevTitle.setHorizontalAlignment(SwingConstants.CENTER);
+			prevParties.add(prevTitle);
+
+			for (String s : parties) {
+				JLabel label = new JLabel(s);
+				label.setBorder(new EmptyBorder(10, 10, 0, 10));
+				label.setForeground(Color.GRAY);
+				label.addMouseListener(new MouseAdapter() {
+					@Override
+					public void mouseEntered(MouseEvent e) {
+						label.setForeground(Color.WHITE);
+					}
+
+					@Override
+					public void mouseExited(MouseEvent e) {
+						label.setForeground(Color.GRAY);
+					}
+
+					@Override
+					public void mouseClicked(MouseEvent e) {
+						partyService.changeParty(label.getText());
+					}
+				});
+				prevParties.add(label);
+			}
+		}
 	}
 }

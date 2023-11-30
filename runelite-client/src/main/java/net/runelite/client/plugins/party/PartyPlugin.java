@@ -32,12 +32,7 @@ import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -172,6 +167,8 @@ public class PartyPlugin extends Plugin
 	};
 
 	private boolean hotkeyPressed = false;
+
+	private final Deque<String> prevParties = new ArrayDeque<>();
 
 	@Override
 	public void configure(Binder binder)
@@ -598,6 +595,10 @@ public class PartyPlugin extends Plugin
 		if (event.getPartyId() != null)
 		{
 			config.setPreviousPartyId(event.getPassphrase());
+			prevParties.addFirst(event.getPassphrase());
+			if (prevParties.size() > 5) {
+				prevParties.removeLast();
+			}
 		}
 
 		SwingUtilities.invokeLater(panel::removeAllMembers);
@@ -683,5 +684,9 @@ public class PartyPlugin extends Plugin
 	{
 		// introduce a tick delay for each member >6
 		return Math.max(1, partySize - 6);
+	}
+
+	public Deque<String> getPreviousParties() {
+		return prevParties;
 	}
 }
