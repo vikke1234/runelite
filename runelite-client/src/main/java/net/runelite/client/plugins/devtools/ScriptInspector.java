@@ -44,9 +44,9 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.inject.Inject;
@@ -221,11 +221,11 @@ public class ScriptInspector extends DevToolsFrame
 
 		try
 		{
-			blacklist = new HashSet<>(Lists.transform(Text.fromCSV(blacklistConfig), Integer::parseInt));
+			blacklist = new TreeSet<>(Lists.transform(Text.fromCSV(blacklistConfig), Integer::parseInt));
 		}
 		catch (NumberFormatException e)
 		{
-			blacklist = new HashSet<>(Lists.transform(Text.fromCSV(DEFAULT_BLACKLIST), Integer::parseInt));
+			blacklist = new TreeSet<>(Lists.transform(Text.fromCSV(DEFAULT_BLACKLIST), Integer::parseInt));
 		}
 
 		String highlightsConfig = configManager.getConfiguration("devtools", "highlights");
@@ -237,11 +237,11 @@ public class ScriptInspector extends DevToolsFrame
 
 		try
 		{
-			highlights = new HashSet<>(Lists.transform(Text.fromCSV(highlightsConfig), Integer::parseInt));
+			highlights = new TreeSet<>(Lists.transform(Text.fromCSV(highlightsConfig), Integer::parseInt));
 		}
 		catch (NumberFormatException e)
 		{
-			blacklist = new HashSet<>();
+			blacklist = new TreeSet<>();
 		}
 
 		final JPanel rightSide = new JPanel();
@@ -514,7 +514,7 @@ public class ScriptInspector extends DevToolsFrame
 	private void refreshList()
 	{
 		listModel.clear();
-		Set<Integer> set = getSet();
+		TreeSet<Integer> set = (TreeSet<Integer>) getSet();
 
 		for (Integer i : set)
 		{
